@@ -1,24 +1,55 @@
 package main
 
 import (
-
-  // Import the generated protobuf code
   "fmt"
   "log"
+  "errors"
+
+  "golang.org/x/net/context"
 
   pb "github.com/tttmaximttt/microservicesEmplStarter/consignment-service/proto/consignment"
   vesselProto "github.com/tttmaximttt/microservicesEmplStarter/vessel-service/proto/vessel"
+  userService "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
   "github.com/micro/go-micro"
+  "github.com/micro/go-micro/metadata"
   "os"
+  "github.com/micro/go-micro/server"
 )
 
 const (
   defaultHost = "localhost:27017"
 )
 
-func main() {
+var (
+  srv micro.Service
+)
 
-  // Database host from the environment variables
+func AuthWrapper(fn server.HandlerFunc) server.HandlerFunc {
+  return func(ctx context.Context, req server.Request, resp interface{}) error {
+    meta, ok := metadata.FromContext(ctx)
+    if !ok {
+      return errors.New("no auth meta-data found in request")
+    }
+
+    token := meta["Token"]
+    log.Println("Authenticating with token: ", token)
+
+    // Auth here
+    authClient := userService.NewUserServiceClient("go.micro.srv.user", srv.Client())
+    _, err := authClient.ValidateToken(context.Background(), &userService.Token{
+      Token: token,
+    })
+
+    if err != nil {
+      return err
+    }
+
+    err = fn(ctx, req, resp)
+    return err
+  }
+}
+
+func main() {
   host := os.Getenv("DB_HOST")
 
   if host == "" {
@@ -27,27 +58,25 @@ func main() {
 
   session, err := CreateSession(host)
 
-  // Mgo creates a 'master' session, we need to end that session
-  // before the main function closes.
   defer session.Close()
 
   if err != nil {
-
-    // We're wrapping the error returned from our CreateSession
-    // here to add some context to the error.
     log.Panicf("Could not connect to datastore with host %s - %v", host, err)
   }
 
-  // Create a new service. Optionally include some options here.
-  srv := micro.NewService(
-
-    // This name must match the package name given in your protobuf definition
+  srv = micro.NewService(
     micro.Name("go.micro.srv.consignment"),
     micro.Version("latest"),
+    micro.WrapHandler(AuthWrapper),
   )
 
   vesselClient := vesselProto.NewVesselServiceClient("go.micro.srv.vessel", srv.Client())
+  pongResponse, err := vesselClient.Ping(context.TODO(), &vesselProto.PingRequest{Ping: "ping"})
 
+  if pongResponse == nil {
+    log.Fatal("Service unavaliable go.micro.srv.vessel")
+    panic(err)
+  }
   // Init will parse the command line flags.
   srv.Init()
 
@@ -58,4 +87,5 @@ func main() {
   if err := srv.Run(); err != nil {
     fmt.Println(err)
   }
+
 }

@@ -6,6 +6,15 @@ package go.micro.srv.vessel;
 service VesselService {
     rpc FindAvailable(Specification) returns (Response) {}
     rpc Create(Vessel) returns (Response) {}
+    rpc Ping(PingRequest) returns (PongResponse) {}
+}
+
+message PingRequest {
+    string ping = 1;
+}
+
+message PongResponse {
+    string pong = 1;
 }
 
 message Vessel {
