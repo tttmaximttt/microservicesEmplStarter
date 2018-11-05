@@ -51,7 +51,7 @@ func main() {
   srv.Init()
 
   // Register our implementation with
-  pb.RegisterVesselServiceHandler(srv.Server(), &service{session})
+  pb.RegisterVesselServiceHandler(srv.Server(), &handler{session})
 
   if err := srv.Run(); err != nil {
     fmt.Println(err)

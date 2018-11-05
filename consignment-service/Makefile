@@ -8,3 +8,9 @@ run:
 	-e DISABLE_AUTH=true \go
 	consignment-service
 
+runLocal:
+	go build . && MICRO_SERVER_ADDRESS=:50053 \
+	DISABLE_AUTH=true \
+	DISABLE_AUTH=true \
+	./consignment-service
+

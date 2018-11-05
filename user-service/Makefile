@@ -11,4 +11,10 @@ run:
 		-e MICRO_SERVER_ADDRESS=:50051 \
 		-e MICRO_REGISTRY=mdns \
 		user-service
+runLocal:
+		go build . && DB_HOST=localhost \
+		DB_PASS=password \
+		DB_USER=postgres \
+		MICRO_SERVER_ADDRESS=:50051 \
+		./user-service
 

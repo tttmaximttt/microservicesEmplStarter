@@ -4,6 +4,7 @@ import (
   "golang.org/x/net/context"
   "golang.org/x/crypto/bcrypt"
   "log"
+  "errors"
   pb "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
 )
 
@@ -69,6 +70,20 @@ func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) 
 
 
 func (srv *service) ValidateToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
+
+  // Decode token
+  claims, err := srv.tokenService.Decode(req.Token)
+
+  if err != nil {
+    return err
+  }
+
+  if claims.User.Id == "" {
+    return errors.New("invalid user")
+  }
+
+  res.Valid = true
+
   return nil
 }
 

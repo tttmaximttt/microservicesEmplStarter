@@ -10,11 +10,11 @@ service VesselService {
 }
 
 message PingRequest {
-    string ping = 1;
+    string Ping = 1;
 }
 
 message PongResponse {
-    string pong = 1;
+    string Pong = 1;
 }
 
 message Vessel {

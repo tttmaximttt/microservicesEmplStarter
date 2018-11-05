@@ -12,7 +12,6 @@ import (
   "github.com/micro/go-micro/cmd"
   "github.com/micro/go-micro/metadata"
   "golang.org/x/net/context"
-  "fmt"
 )
 
 const (
@@ -58,7 +57,6 @@ func main() {
   })
 
   r, err := client.CreateConsignment(ctx, consignment)
-  fmt.Println(">>>>>>>> consignment", err)
   if err != nil {
     log.Fatalf("Could not create: %v", err)
   }

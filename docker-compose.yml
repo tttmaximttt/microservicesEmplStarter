@@ -8,11 +8,13 @@ services:
       - 27017:27017
   consignment-cli:
     build: ./consignment-cli
+    image: consignment-cli:latest
     environment:
       MICRO_REGISTRY: "mdns"
 
   consignment-service:
     build: ./consignment-service
+    image: consignment-service:latest
     ports:
       - 50051:50051
     environment:
@@ -22,6 +24,7 @@ services:
 
   vessel-service:
     build: ./vessel-service
+    image: vessel-service:latest
     ports:
       - 50052:50051
     environment:
@@ -31,6 +34,7 @@ services:
 
   user-service:
     build: ./user-service
+    image: user-service:latest
     ports:
       - 50053:50051
     environment:
@@ -41,8 +45,10 @@ services:
     image: postgres
     ports:
       - 5432:5432
+
   user-cli:
     build: ./user-cli
+    image: user-cli:latest
     environment:
       MICRO_REGISTRY: "mdns"
 

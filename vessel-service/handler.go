@@ -7,15 +7,15 @@ import (
 )
 
 // Our gRPC service handler
-type service struct {
+type handler struct {
   session *mgo.Session
 }
 
-func (s *service) GetRepo() Repository {
+func (s *handler) GetRepo() Repository {
   return &VesselRepository{s.session.Clone()}
 }
 
-func (s *service) FindAvailable(ctx context.Context, req *pb.Specification, res *pb.Response) error {
+func (s *handler) FindAvailable(ctx context.Context, req *pb.Specification, res *pb.Response) error {
   defer s.GetRepo().Close()
   // Find the next available vessel
   vessel, err := s.GetRepo().FindAvailable(req)
@@ -28,7 +28,12 @@ func (s *service) FindAvailable(ctx context.Context, req *pb.Specification, res 
   return nil
 }
 
-func (s *service) Create(ctx context.Context, req *pb.Vessel, res *pb.Response) error {
+func (s *handler)Ping (ctx context.Context, req *pb.PingRequest, res *pb.PongResponse) error {
+  res.Pong = "pong"
+  return nil
+}
+
+func (s *handler) Create(ctx context.Context, req *pb.Vessel, res *pb.Response) error {
   defer s.GetRepo().Close()
   if err := s.GetRepo().Create(req); err != nil {
     return err
