@@ -6,5 +6,5 @@ run:
 	docker run -e MICRO_REGISTRY=mdns consignment-cli
 
 runLocal:
-	go build . && ./consignment-cli ${file} ${token}
+	go build . && MICRO_REGISTRY=mdns ./consignment-cli ${file} ${token}
 

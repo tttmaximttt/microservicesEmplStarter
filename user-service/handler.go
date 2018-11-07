@@ -6,11 +6,15 @@ import (
   "log"
   "errors"
   pb "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
+  "github.com/micro/go-micro"
 )
+
+const topic = "user.created"
 
 type service struct {
   repo Repository
   tokenService Authable
+  Publisher micro.Publisher
 }
 
 func (srv *service) Get(ctx context.Context, req *pb.User, res *pb.Response) error {
@@ -65,9 +69,13 @@ func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) 
     return err
   }
   res.User = req
+
+  if err := srv.Publisher.Publish(ctx, req); err != nil {
+    return err
+  }
+
   return nil
 }
-
 
 func (srv *service) ValidateToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
 
