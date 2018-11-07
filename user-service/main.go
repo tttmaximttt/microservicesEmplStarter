@@ -16,20 +16,19 @@ func main() {
   }
 
   db.AutoMigrate(&pb.User{})
-
   repo := &UserRepository{db}
-
   tokenService := &TokenService{repo}
 
   srv := micro.NewService(
-    micro.Name("go.micro.srv.user"),
-    micro.Version("latest"),
+
+    // This name must match the package name given in your protobuf definition
+    micro.Name("micros.go.micro.srv.user"),
   )
 
   srv.Init()
   publisher := micro.NewPublisher("user.created", srv.Client())
 
-  pb.RegisterUserServiceHandler(srv.Server(), &service{repo, tokenService, publisher})
+  pb.RegisterAuthHandler(srv.Server(), &service{repo, tokenService, publisher})
 
   if err := srv.Run(); err != nil {
     fmt.Println(err)

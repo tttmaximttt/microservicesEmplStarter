@@ -4,6 +4,7 @@ import (
   "golang.org/x/net/context"
   "golang.org/x/crypto/bcrypt"
   "log"
+  "fmt"
   "errors"
   pb "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
   "github.com/micro/go-micro"
@@ -38,7 +39,7 @@ func (srv *service) GetAll(ctx context.Context, req *pb.Request, res *pb.Respons
 func (srv *service) Auth(ctx context.Context, req *pb.User, res *pb.Token) error {
   log.Println("Logging in with:", req.Email, req.Password)
   user, err := srv.repo.GetByEmail(req.Email)
-  log.Println(user)
+  log.Println(user, err)
   if err != nil {
     return err
   }
@@ -59,19 +60,23 @@ func (srv *service) Auth(ctx context.Context, req *pb.User, res *pb.Token) error
 
 func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) error {
 
+  log.Println("Creating user: ", req)
+
   // Generates a hashed version of our password
   hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
   if err != nil {
-    return err
+    return errors.New(fmt.Sprintf("error hashing password: %v", err))
   }
+
   req.Password = string(hashedPass)
   if err := srv.repo.Create(req); err != nil {
-    return err
+    return errors.New(fmt.Sprintf("error creating user: %v", err))
   }
-  res.User = req
 
+
+  res.User = req
   if err := srv.Publisher.Publish(ctx, req); err != nil {
-    return err
+    return errors.New(fmt.Sprintf("error publishing event: %v", err))
   }
 
   return nil
@@ -94,4 +99,3 @@ func (srv *service) ValidateToken(ctx context.Context, req *pb.Token, res *pb.To
 
   return nil
 }
-
