@@ -7,6 +7,7 @@ import (
 
   "golang.org/x/net/context"
 
+  k8s "github.com/micro/kubernetes/go/micro"
   pb "github.com/tttmaximttt/microservicesEmplStarter/consignment-service/proto/consignment"
   vesselProto "github.com/tttmaximttt/microservicesEmplStarter/vessel-service/proto/vessel"
   userService "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
@@ -69,24 +70,24 @@ func main() {
     log.Panicf("Could not connect to datastore with host %s - %v", host, err)
   }
 
-  srv = micro.NewService(
-    micro.Name("go.micro.srv.consignment"),
+  srv = k8s.NewService(
+    micro.Name("micros.consignment"),
     micro.Version("latest"),
     micro.WrapHandler(AuthWrapper),
   )
 
-  vesselClient := vesselProto.NewVesselServiceClient("go.micro.srv.vessel", srv.Client())
+  vesselClient := vesselProto.NewVesselServiceClient("micros.vessel", srv.Client())
   pongResponse, err := vesselClient.Ping(context.TODO(), &vesselProto.PingRequest{Ping: "ping"})
 
   if pongResponse == nil {
-    log.Fatal("Service unavaliable go.micro.srv.vessel")
+    log.Fatal("Service unavaliable micros.vessel")
     panic(err)
   }
   // Init will parse the command line flags.
   srv.Init()
 
   // Register handler
-  pb.RegisterShippingServiceHandler(srv.Server(), &handler{vesselClient, session })
+  pb.RegisterConsignmentServiceHandler(srv.Server(), &handler{vesselClient, session })
 
   // Run the server
   if err := srv.Run(); err != nil {

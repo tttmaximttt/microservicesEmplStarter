@@ -3,6 +3,7 @@ package main
 import (
   "log"
 
+  k8s "github.com/micro/kubernetes/go/micro"
   pb "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
   "github.com/micro/go-micro"
   "golang.org/x/net/context"
@@ -21,7 +22,7 @@ func (sub *Subscriber) Process(ctx context.Context, user *pb.User) error {
 }
 
 func main() {
-  srv := micro.NewService(
+  srv := k8s.NewService(
     micro.Name("micros.go.micro.srv.email"),
   )
 

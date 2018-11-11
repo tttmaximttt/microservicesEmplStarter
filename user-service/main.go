@@ -3,6 +3,8 @@ package main
 import (
   "fmt"
   "log"
+
+  k8s "github.com/micro/kubernetes/go/micro"
   pb "github.com/tttmaximttt/microservicesEmplStarter/user-service/proto/user"
   "github.com/micro/go-micro"
 )
@@ -19,7 +21,7 @@ func main() {
   repo := &UserRepository{db}
   tokenService := &TokenService{repo}
 
-  srv := micro.NewService(
+  srv := k8s.NewService(
 
     // This name must match the package name given in your protobuf definition
     micro.Name("micros.go.micro.srv.user"),
@@ -28,7 +30,7 @@ func main() {
   srv.Init()
   publisher := micro.NewPublisher("user.created", srv.Client())
 
-  pb.RegisterAuthHandler(srv.Server(), &service{repo, tokenService, publisher})
+  pb.RegisterUserServiceHandler(srv.Server(), &service{repo, tokenService, publisher})
 
   if err := srv.Run(); err != nil {
     fmt.Println(err)

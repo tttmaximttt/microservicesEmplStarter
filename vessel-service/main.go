@@ -4,6 +4,7 @@ import (
   "fmt"
   "log"
 
+  k8s "github.com/micro/kubernetes/go/micro"
   pb "github.com/tttmaximttt/microservicesEmplStarter/vessel-service/proto/vessel"
   "github.com/micro/go-micro"
   "os"
@@ -43,8 +44,8 @@ func main() {
 
   createDummyData(repo)
 
-  srv := micro.NewService(
-    micro.Name("go.micro.srv.vessel"),
+  srv := k8s.NewService(
+    micro.Name("micros.vessel"),
     micro.Version("latest"),
   )
 
